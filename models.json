@@ -1,0 +1,22 @@
+{
+	"apiTemperatureRanges": {
+		"anthropic-messages": { "min": 0, "max": 1 },
+		"anthropic-vertex": { "min": 0, "max": 1 },
+		"google-generative-ai": { "min": 0, "max": 2 },
+		"google-vertex": { "min": 0, "max": 2 }
+	},
+	"allowedModels": [
+		{ "id": "claude-sonnet-4-6", "api": "anthropic-messages" },
+		{ "id": "claude-opus-4-6", "api": "anthropic-messages" },
+		{ "id": "claude-haiku-4-5", "api": "anthropic-messages" },
+		{ "id": "claude-sonnet-4-6@default", "api": "anthropic-vertex" },
+		{ "id": "claude-opus-4-6@default", "api": "anthropic-vertex" },
+		{ "id": "claude-haiku-4-5@20251001", "api": "anthropic-vertex" },
+		{ "id": "gemini-3-pro-preview", "api": "google-generative-ai" },
+		{ "id": "gemini-3.1-pro-preview", "api": "google-generative-ai" },
+		{ "id": "gemini-3-flash-preview", "api": "google-generative-ai" },
+		{ "id": "gemini-2.5-pro", "api": "google-generative-ai" },
+		{ "id": "gemini-2.5-flash", "api": "google-generative-ai" },
+		{ "id": "gemini-2.5-flash-lite", "api": "google-generative-ai" }
+	]
+}
