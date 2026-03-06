@@ -2,6 +2,8 @@
 
 A pi extension that provides fine-grained control over LLM temperature via CLI flag, slash command, and skill frontmatter.
 
+**Supports 11 API types, 22 providers, and 343 models** out of the box — covering every built-in pi provider.
+
 ## Features
 
 ### 1. CLI Flag: `--temperature`
@@ -50,34 +52,491 @@ When you run `/skill:creative-writer`, the extension:
 4. Switches to the model and sets the temperature
 5. Returns `{ action: "continue" }` so pi still does normal skill expansion
 
-## Allowed Models
+## Supported APIs & Temperature Ranges
 
-Only these models support skill-based temperature override. Configuration lives in [`models.json`](models.json).
+All 11 API types supported by pi are covered:
 
-| Model | Provider | API | Temperature Range |
-|-------|----------|-----|-------------------|
-| `claude-sonnet-4-6` | Anthropic | `anthropic-messages` | 0 - 1 |
-| `claude-opus-4-6` | Anthropic | `anthropic-messages` | 0 - 1 |
-| `claude-haiku-4-5` | Anthropic | `anthropic-messages` | 0 - 1 |
-| `claude-sonnet-4-6@default` | Anthropic Vertex | `anthropic-vertex` | 0 - 1 |
-| `claude-opus-4-6@default` | Anthropic Vertex | `anthropic-vertex` | 0 - 1 |
-| `claude-haiku-4-5@20251001` | Anthropic Vertex | `anthropic-vertex` | 0 - 1 |
-| `gemini-3-pro-preview` | Google | `google-generative-ai` | 0 - 2 |
-| `gemini-3.1-pro-preview` | Google | `google-generative-ai` | 0 - 2 |
-| `gemini-3-flash-preview` | Google | `google-generative-ai` | 0 - 2 |
-| `gemini-2.5-pro` | Google | `google-generative-ai` | 0 - 2 |
-| `gemini-2.5-flash` | Google | `google-generative-ai` | 0 - 2 |
-| `gemini-2.5-flash-lite` | Google | `google-generative-ai` | 0 - 2 |
+| API Type | Temperature Range | Providers Using This API |
+|----------|-------------------|--------------------------|
+| `anthropic-messages` | 0 – 1 | Anthropic, Kimi Coding, MiniMax, Vercel AI Gateway, OpenCode |
+| `anthropic-vertex` | 0 – 1 | Anthropic Vertex (external extension) |
+| `openai-responses` | 0 – 2 | OpenAI |
+| `openai-completions` | 0 – 2 | xAI (Grok), Groq, Cerebras, HuggingFace, ZAI, OpenRouter, OpenCode |
+| `openai-codex-responses` | 0 – 2 | OpenAI Codex |
+| `azure-openai-responses` | 0 – 2 | Azure OpenAI |
+| `google-generative-ai` | 0 – 2 | Google AI Studio |
+| `google-vertex` | 0 – 2 | Google Cloud Vertex AI |
+| `google-gemini-cli` | 0 – 2 | Google Gemini CLI, Google Antigravity |
+| `mistral-conversations` | 0 – 1.5 | Mistral |
+| `bedrock-converse-stream` | 0 – 1 | Amazon Bedrock |
 
-The `--temperature` CLI flag and `/temperature` command work with any model using a supported API (`anthropic-messages`, `anthropic-vertex`, `google-generative-ai`, `google-vertex`).
+The `--temperature` CLI flag and `/temperature` command work with **any model** on a supported API. The `allowedModels` list in `models.json` only governs which models can be switched to via skill frontmatter.
 
-To add new models or adjust temperature ranges, edit `models.json`.
+## Allowed Models (343 total)
+
+Models are listed in [`models.json`](models.json) grouped by API type.
+
+<details>
+<summary><strong>Anthropic — 29 models</strong> (anthropic-messages, range: 0–1)</summary>
+
+| Model ID |
+|----------|
+| `claude-3-5-haiku-20241022` |
+| `claude-3-5-haiku-latest` |
+| `claude-3-5-sonnet-20240620` |
+| `claude-3-5-sonnet-20241022` |
+| `claude-3-7-sonnet-20250219` |
+| `claude-3-7-sonnet-latest` |
+| `claude-3-haiku-20240307` |
+| `claude-3-opus-20240229` |
+| `claude-3-sonnet-20240229` |
+| `claude-haiku-4-5` |
+| `claude-haiku-4-5-20251001` |
+| `claude-opus-4-0` |
+| `claude-opus-4-1` |
+| `claude-opus-4-1-20250805` |
+| `claude-opus-4-20250514` |
+| `claude-opus-4-5` |
+| `claude-opus-4-5-20251101` |
+| `claude-opus-4-6` |
+| `claude-sonnet-4-0` |
+| `claude-sonnet-4-20250514` |
+| `claude-sonnet-4-5` |
+| `claude-sonnet-4-5-20250929` |
+| `claude-sonnet-4-6` |
+| `k2p5` |
+| `kimi-k2-thinking` |
+| `MiniMax-M2` |
+| `MiniMax-M2.1` |
+| `MiniMax-M2.5` |
+| `MiniMax-M2.5-highspeed` |
+
+</details>
+
+<details>
+<summary><strong>Anthropic Vertex — 3 models</strong> (anthropic-vertex, range: 0–1)</summary>
+
+| Model ID |
+|----------|
+| `claude-sonnet-4-6@default` |
+| `claude-opus-4-6@default` |
+| `claude-haiku-4-5@20251001` |
+
+</details>
+
+<details>
+<summary><strong>OpenAI — 38 models</strong> (openai-responses, range: 0–2)</summary>
+
+| Model ID |
+|----------|
+| `codex-mini-latest` |
+| `gpt-4` |
+| `gpt-4-turbo` |
+| `gpt-4.1` |
+| `gpt-4.1-mini` |
+| `gpt-4.1-nano` |
+| `gpt-4o` |
+| `gpt-4o-2024-05-13` |
+| `gpt-4o-2024-08-06` |
+| `gpt-4o-2024-11-20` |
+| `gpt-4o-mini` |
+| `gpt-5` |
+| `gpt-5-chat-latest` |
+| `gpt-5-codex` |
+| `gpt-5-mini` |
+| `gpt-5-nano` |
+| `gpt-5-pro` |
+| `gpt-5.1` |
+| `gpt-5.1-chat-latest` |
+| `gpt-5.1-codex` |
+| `gpt-5.1-codex-max` |
+| `gpt-5.1-codex-mini` |
+| `gpt-5.2` |
+| `gpt-5.2-chat-latest` |
+| `gpt-5.2-codex` |
+| `gpt-5.2-pro` |
+| `gpt-5.3-codex` |
+| `gpt-5.3-codex-spark` |
+| `gpt-5.4` |
+| `gpt-5.4-pro` |
+| `o1` |
+| `o1-pro` |
+| `o3` |
+| `o3-deep-research` |
+| `o3-mini` |
+| `o3-pro` |
+| `o4-mini` |
+| `o4-mini-deep-research` |
+
+</details>
+
+<details>
+<summary><strong>OpenAI-compatible — 68 models</strong> (openai-completions, range: 0–2)</summary>
+
+Includes models from xAI (Grok), Groq, Cerebras, HuggingFace, ZAI, and OpenRouter:
+
+| Model ID | Source Provider |
+|----------|----------------|
+| `grok-2` | xAI |
+| `grok-2-1212` | xAI |
+| `grok-2-latest` | xAI |
+| `grok-2-vision` | xAI |
+| `grok-2-vision-1212` | xAI |
+| `grok-2-vision-latest` | xAI |
+| `grok-3` | xAI |
+| `grok-3-fast` | xAI |
+| `grok-3-fast-latest` | xAI |
+| `grok-3-latest` | xAI |
+| `grok-3-mini` | xAI |
+| `grok-3-mini-fast` | xAI |
+| `grok-3-mini-fast-latest` | xAI |
+| `grok-3-mini-latest` | xAI |
+| `grok-4` | xAI |
+| `grok-4-1-fast` | xAI |
+| `grok-4-1-fast-non-reasoning` | xAI |
+| `grok-4-fast` | xAI |
+| `grok-4-fast-non-reasoning` | xAI |
+| `grok-beta` | xAI |
+| `grok-code-fast-1` | xAI |
+| `grok-vision-beta` | xAI |
+| `deepseek-r1-distill-llama-70b` | Groq |
+| `gemma2-9b-it` | Groq |
+| `llama-3.1-8b-instant` | Groq |
+| `llama-3.3-70b-versatile` | Groq |
+| `llama3-70b-8192` | Groq |
+| `llama3-8b-8192` | Groq |
+| `meta-llama/llama-4-maverick-17b-128e-instruct` | Groq |
+| `meta-llama/llama-4-scout-17b-16e-instruct` | Groq |
+| `mistral-saba-24b` | Groq |
+| `moonshotai/kimi-k2-instruct` | Groq |
+| `moonshotai/kimi-k2-instruct-0905` | Groq |
+| `openai/gpt-oss-120b` | Groq |
+| `openai/gpt-oss-20b` | Groq |
+| `qwen-qwq-32b` | Groq |
+| `qwen/qwen3-32b` | Groq |
+| `gpt-oss-120b` | Cerebras |
+| `llama3.1-8b` | Cerebras |
+| `qwen-3-235b-a22b-instruct-2507` | Cerebras |
+| `zai-glm-4.7` | Cerebras |
+| `glm-4.5` | ZAI |
+| `glm-4.5-air` | ZAI |
+| `glm-4.5-flash` | ZAI |
+| `glm-4.5v` | ZAI |
+| `glm-4.6` | ZAI |
+| `glm-4.6v` | ZAI |
+| `glm-4.7` | ZAI |
+| `glm-4.7-flash` | ZAI |
+| `glm-5` | ZAI |
+| `MiniMaxAI/MiniMax-M2.1` | HuggingFace |
+| `MiniMaxAI/MiniMax-M2.5` | HuggingFace |
+| `Qwen/Qwen3-235B-A22B-Thinking-2507` | HuggingFace |
+| `Qwen/Qwen3-Coder-480B-A35B-Instruct` | HuggingFace |
+| `Qwen/Qwen3-Coder-Next` | HuggingFace |
+| `Qwen/Qwen3-Next-80B-A3B-Instruct` | HuggingFace |
+| `Qwen/Qwen3-Next-80B-A3B-Thinking` | HuggingFace |
+| `Qwen/Qwen3.5-397B-A17B` | HuggingFace |
+| `XiaomiMiMo/MiMo-V2-Flash` | HuggingFace |
+| `deepseek-ai/DeepSeek-R1-0528` | HuggingFace |
+| `deepseek-ai/DeepSeek-V3.2` | HuggingFace |
+| `moonshotai/Kimi-K2-Instruct` | HuggingFace |
+| `moonshotai/Kimi-K2-Instruct-0905` | HuggingFace |
+| `moonshotai/Kimi-K2-Thinking` | HuggingFace |
+| `moonshotai/Kimi-K2.5` | HuggingFace |
+| `zai-org/GLM-4.7` | HuggingFace |
+| `zai-org/GLM-4.7-Flash` | HuggingFace |
+| `zai-org/GLM-5` | HuggingFace |
+
+</details>
+
+<details>
+<summary><strong>OpenAI Codex — 8 models</strong> (openai-codex-responses, range: 0–2)</summary>
+
+| Model ID |
+|----------|
+| `gpt-5.1` |
+| `gpt-5.1-codex-max` |
+| `gpt-5.1-codex-mini` |
+| `gpt-5.2` |
+| `gpt-5.2-codex` |
+| `gpt-5.3-codex` |
+| `gpt-5.3-codex-spark` |
+| `gpt-5.4` |
+
+</details>
+
+<details>
+<summary><strong>Azure OpenAI — 38 models</strong> (azure-openai-responses, range: 0–2)</summary>
+
+| Model ID |
+|----------|
+| `codex-mini-latest` |
+| `gpt-4` |
+| `gpt-4-turbo` |
+| `gpt-4.1` |
+| `gpt-4.1-mini` |
+| `gpt-4.1-nano` |
+| `gpt-4o` |
+| `gpt-4o-2024-05-13` |
+| `gpt-4o-2024-08-06` |
+| `gpt-4o-2024-11-20` |
+| `gpt-4o-mini` |
+| `gpt-5` |
+| `gpt-5-chat-latest` |
+| `gpt-5-codex` |
+| `gpt-5-mini` |
+| `gpt-5-nano` |
+| `gpt-5-pro` |
+| `gpt-5.1` |
+| `gpt-5.1-chat-latest` |
+| `gpt-5.1-codex` |
+| `gpt-5.1-codex-max` |
+| `gpt-5.1-codex-mini` |
+| `gpt-5.2` |
+| `gpt-5.2-chat-latest` |
+| `gpt-5.2-codex` |
+| `gpt-5.2-pro` |
+| `gpt-5.3-codex` |
+| `gpt-5.3-codex-spark` |
+| `gpt-5.4` |
+| `gpt-5.4-pro` |
+| `o1` |
+| `o1-pro` |
+| `o3` |
+| `o3-deep-research` |
+| `o3-mini` |
+| `o3-pro` |
+| `o4-mini` |
+| `o4-mini-deep-research` |
+
+</details>
+
+<details>
+<summary><strong>Google Generative AI — 24 models</strong> (google-generative-ai, range: 0–2)</summary>
+
+| Model ID |
+|----------|
+| `gemini-1.5-flash` |
+| `gemini-1.5-flash-8b` |
+| `gemini-1.5-pro` |
+| `gemini-2.0-flash` |
+| `gemini-2.0-flash-lite` |
+| `gemini-2.5-flash` |
+| `gemini-2.5-flash-lite` |
+| `gemini-2.5-flash-lite-preview-06-17` |
+| `gemini-2.5-flash-lite-preview-09-2025` |
+| `gemini-2.5-flash-preview-04-17` |
+| `gemini-2.5-flash-preview-05-20` |
+| `gemini-2.5-flash-preview-09-2025` |
+| `gemini-2.5-pro` |
+| `gemini-2.5-pro-preview-05-06` |
+| `gemini-2.5-pro-preview-06-05` |
+| `gemini-3-flash-preview` |
+| `gemini-3-pro-preview` |
+| `gemini-3.1-flash-lite-preview` |
+| `gemini-3.1-pro-preview` |
+| `gemini-3.1-pro-preview-customtools` |
+| `gemini-flash-latest` |
+| `gemini-flash-lite-latest` |
+| `gemini-live-2.5-flash` |
+| `gemini-live-2.5-flash-preview-native-audio` |
+
+</details>
+
+<details>
+<summary><strong>Google Vertex AI — 12 models</strong> (google-vertex, range: 0–2)</summary>
+
+| Model ID |
+|----------|
+| `gemini-1.5-flash` |
+| `gemini-1.5-flash-8b` |
+| `gemini-1.5-pro` |
+| `gemini-2.0-flash` |
+| `gemini-2.0-flash-lite` |
+| `gemini-2.5-flash` |
+| `gemini-2.5-flash-lite` |
+| `gemini-2.5-flash-lite-preview-09-2025` |
+| `gemini-2.5-pro` |
+| `gemini-3-flash-preview` |
+| `gemini-3-pro-preview` |
+| `gemini-3.1-pro-preview` |
+
+</details>
+
+<details>
+<summary><strong>Google Gemini CLI — 15 models</strong> (google-gemini-cli, range: 0–2)</summary>
+
+| Model ID |
+|----------|
+| `gemini-2.0-flash` |
+| `gemini-2.5-flash` |
+| `gemini-2.5-pro` |
+| `gemini-3-flash-preview` |
+| `gemini-3-pro-preview` |
+| `gemini-3.1-pro-preview` |
+| `claude-opus-4-5-thinking` |
+| `claude-opus-4-6-thinking` |
+| `claude-sonnet-4-5` |
+| `claude-sonnet-4-5-thinking` |
+| `claude-sonnet-4-6` |
+| `gemini-3-flash` |
+| `gemini-3.1-pro-high` |
+| `gemini-3.1-pro-low` |
+| `gpt-oss-120b-medium` |
+
+</details>
+
+<details>
+<summary><strong>Mistral — 25 models</strong> (mistral-conversations, range: 0–1.5)</summary>
+
+| Model ID |
+|----------|
+| `codestral-latest` |
+| `devstral-2512` |
+| `devstral-medium-2507` |
+| `devstral-medium-latest` |
+| `devstral-small-2505` |
+| `devstral-small-2507` |
+| `labs-devstral-small-2512` |
+| `magistral-medium-latest` |
+| `magistral-small` |
+| `ministral-3b-latest` |
+| `ministral-8b-latest` |
+| `mistral-large-2411` |
+| `mistral-large-2512` |
+| `mistral-large-latest` |
+| `mistral-medium-2505` |
+| `mistral-medium-2508` |
+| `mistral-medium-latest` |
+| `mistral-nemo` |
+| `mistral-small-2506` |
+| `mistral-small-latest` |
+| `open-mistral-7b` |
+| `open-mixtral-8x22b` |
+| `open-mixtral-8x7b` |
+| `pixtral-12b` |
+| `pixtral-large-latest` |
+
+</details>
+
+<details>
+<summary><strong>Amazon Bedrock — 83 models</strong> (bedrock-converse-stream, range: 0–1)</summary>
+
+Includes Claude, Llama, Mistral, Nova, Cohere, DeepSeek, Qwen, and more on AWS Bedrock:
+
+| Model ID |
+|----------|
+| `amazon.nova-2-lite-v1:0` |
+| `amazon.nova-lite-v1:0` |
+| `amazon.nova-micro-v1:0` |
+| `amazon.nova-premier-v1:0` |
+| `amazon.nova-pro-v1:0` |
+| `amazon.titan-text-express-v1` |
+| `amazon.titan-text-express-v1:0:8k` |
+| `anthropic.claude-3-5-haiku-20241022-v1:0` |
+| `anthropic.claude-3-5-sonnet-20240620-v1:0` |
+| `anthropic.claude-3-5-sonnet-20241022-v2:0` |
+| `anthropic.claude-3-7-sonnet-20250219-v1:0` |
+| `anthropic.claude-3-haiku-20240307-v1:0` |
+| `anthropic.claude-3-opus-20240229-v1:0` |
+| `anthropic.claude-3-sonnet-20240229-v1:0` |
+| `anthropic.claude-haiku-4-5-20251001-v1:0` |
+| `anthropic.claude-opus-4-1-20250805-v1:0` |
+| `anthropic.claude-opus-4-20250514-v1:0` |
+| `anthropic.claude-opus-4-5-20251101-v1:0` |
+| `anthropic.claude-opus-4-6-v1` |
+| `anthropic.claude-sonnet-4-20250514-v1:0` |
+| `anthropic.claude-sonnet-4-5-20250929-v1:0` |
+| `anthropic.claude-sonnet-4-6` |
+| `cohere.command-r-plus-v1:0` |
+| `cohere.command-r-v1:0` |
+| `deepseek.r1-v1:0` |
+| `deepseek.v3-v1:0` |
+| `deepseek.v3.2-v1:0` |
+| `eu.anthropic.claude-haiku-4-5-20251001-v1:0` |
+| `eu.anthropic.claude-opus-4-5-20251101-v1:0` |
+| `eu.anthropic.claude-opus-4-6-v1` |
+| `eu.anthropic.claude-sonnet-4-20250514-v1:0` |
+| `eu.anthropic.claude-sonnet-4-5-20250929-v1:0` |
+| `eu.anthropic.claude-sonnet-4-6` |
+| `global.anthropic.claude-haiku-4-5-20251001-v1:0` |
+| `global.anthropic.claude-opus-4-5-20251101-v1:0` |
+| `global.anthropic.claude-opus-4-6-v1` |
+| `global.anthropic.claude-sonnet-4-20250514-v1:0` |
+| `global.anthropic.claude-sonnet-4-5-20250929-v1:0` |
+| `global.anthropic.claude-sonnet-4-6` |
+| `google.gemma-3-27b-it` |
+| `google.gemma-3-4b-it` |
+| `meta.llama3-1-70b-instruct-v1:0` |
+| `meta.llama3-1-8b-instruct-v1:0` |
+| `meta.llama3-2-11b-instruct-v1:0` |
+| `meta.llama3-2-1b-instruct-v1:0` |
+| `meta.llama3-2-3b-instruct-v1:0` |
+| `meta.llama3-2-90b-instruct-v1:0` |
+| `meta.llama3-3-70b-instruct-v1:0` |
+| `meta.llama4-maverick-17b-instruct-v1:0` |
+| `meta.llama4-scout-17b-instruct-v1:0` |
+| `minimax.minimax-m2` |
+| `minimax.minimax-m2.1` |
+| `mistral.ministral-3-14b-instruct` |
+| `mistral.ministral-3-8b-instruct` |
+| `mistral.mistral-large-2402-v1:0` |
+| `mistral.voxtral-mini-3b-2507` |
+| `mistral.voxtral-small-24b-2507` |
+| `moonshot.kimi-k2-thinking` |
+| `moonshotai.kimi-k2.5` |
+| `nvidia.nemotron-nano-12b-v2` |
+| `nvidia.nemotron-nano-9b-v2` |
+| `openai.gpt-oss-120b-1:0` |
+| `openai.gpt-oss-20b-1:0` |
+| `openai.gpt-oss-safeguard-120b` |
+| `openai.gpt-oss-safeguard-20b` |
+| `qwen.qwen3-235b-a22b-2507-v1:0` |
+| `qwen.qwen3-32b-v1:0` |
+| `qwen.qwen3-coder-30b-a3b-v1:0` |
+| `qwen.qwen3-coder-480b-a35b-v1:0` |
+| `qwen.qwen3-next-80b-a3b` |
+| `qwen.qwen3-vl-235b-a22b` |
+| `us.anthropic.claude-haiku-4-5-20251001-v1:0` |
+| `us.anthropic.claude-opus-4-1-20250805-v1:0` |
+| `us.anthropic.claude-opus-4-20250514-v1:0` |
+| `us.anthropic.claude-opus-4-5-20251101-v1:0` |
+| `us.anthropic.claude-opus-4-6-v1` |
+| `us.anthropic.claude-sonnet-4-20250514-v1:0` |
+| `us.anthropic.claude-sonnet-4-5-20250929-v1:0` |
+| `us.anthropic.claude-sonnet-4-6` |
+| `writer.palmyra-x4-v1:0` |
+| `writer.palmyra-x5-v1:0` |
+| `zai.glm-4.7` |
+| `zai.glm-4.7-flash` |
+
+</details>
 
 ## How It Works
 
-### `pi.setTemperature()` / `pi.getTemperature()`
+### Temperature Injection Architecture
 
-The extension uses pi's built-in `pi.setTemperature()` API to inject temperature into LLM calls. When set, the agent passes the temperature through `SimpleStreamOptions.temperature` to whatever provider stream function handles the request. This works universally for all registered providers (Anthropic, Google, Anthropic Vertex, etc.) without needing per-provider wrappers.
+The extension uses two mechanisms to inject temperature into all provider API calls:
+
+**Load-time wrapping (8 APIs)**: At extension load, `pi.registerProvider()` replaces the `streamSimple` function for each API type with a wrapper that checks `activeTemperature` and spreads it into the options before delegating to the original pure stream function from `@mariozechner/pi-ai`:
+
+```
+anthropic-messages      → streamSimpleAnthropic
+google-generative-ai    → streamSimpleGoogle
+google-vertex           → streamSimpleGoogleVertex
+google-gemini-cli       → streamSimpleGoogleGeminiCli
+openai-responses        → streamSimpleOpenAIResponses
+openai-completions      → streamSimpleOpenAICompletions
+azure-openai-responses  → streamSimpleAzureOpenAIResponses
+mistral-conversations   → streamSimpleMistral
+```
+
+**Late-binding (3 APIs)**: For providers whose stream functions are **not exported** from `@mariozechner/pi-ai` (they use lazy loading or come from external extensions), the extension captures the already-registered stream function from `ctx.modelRegistry.registeredProviders` at `session_start` and re-registers a temperature-injecting wrapper:
+
+```
+anthropic-vertex        → captured from pi-anthropic-vertex extension
+bedrock-converse-stream → captured from lazy-loaded amazon-bedrock module
+openai-codex-responses  → captured from lazy-loaded openai-codex module
+```
 
 ### Configuration: `models.json`
 
@@ -87,12 +546,14 @@ All model and temperature range data is stored in `models.json`:
 {
   "apiTemperatureRanges": {
     "anthropic-messages": { "min": 0, "max": 1 },
-    "anthropic-vertex": { "min": 0, "max": 1 },
-    "google-generative-ai": { "min": 0, "max": 2 },
-    "google-vertex": { "min": 0, "max": 2 }
+    "openai-responses": { "min": 0, "max": 2 },
+    "mistral-conversations": { "min": 0, "max": 1.5 },
+    ...
   },
   "allowedModels": [
     { "id": "claude-sonnet-4-6", "api": "anthropic-messages" },
+    { "id": "gpt-5", "api": "openai-responses" },
+    { "id": "grok-4", "api": "openai-completions" },
     ...
   ]
 }
@@ -107,6 +568,156 @@ All model and temperature range data is stored in `models.json`:
 - `/temperature` command: Validated against the current model's API range
 - Skill frontmatter: Validated against the requested model's API range
 - Model switch (`model_select` event): Warns if current temperature is out of range for the new model
+
+## Testing with `test-interceptor.js`
+
+The `test-interceptor.js` file is a **fetch interceptor** that wraps `globalThis.fetch` to log the full HTTP request payload for all outgoing LLM API calls. This lets you verify that temperature is actually being injected into the wire-level HTTP request, not just set in extension state.
+
+### What it does
+
+1. Saves the original `globalThis.fetch`
+2. Replaces it with a wrapper that pattern-matches request URLs against known provider endpoints
+3. Logs the full request URL, parsed JSON body, and highlights the `temperature` value if found
+4. Passes the request through to the original fetch (non-destructive — requests still work normally)
+
+### Supported endpoint patterns
+
+The interceptor recognizes 13 provider URL patterns:
+
+| Pattern | Provider |
+|---------|----------|
+| `googleapis.com` | Google (Generative AI, Vertex, Gemini CLI) |
+| `api.anthropic.com` | Anthropic |
+| `api.openai.com` | OpenAI |
+| `api.mistral.ai` | Mistral |
+| `bedrock-runtime` | AWS Bedrock |
+| `openai.azure.com` | Azure OpenAI |
+| `api.x.ai` | xAI (Grok) |
+| `api.groq.com` | Groq |
+| `api.cerebras.ai` | Cerebras |
+| `api.together.xyz` | Together AI |
+| `openrouter.ai` | OpenRouter |
+| `huggingface.co` | HuggingFace |
+| `api.minimax.chat` | MiniMax |
+
+### How to invoke
+
+**Method 1: `NODE_OPTIONS` with `--import` (recommended for ESM)**
+
+```bash
+NODE_OPTIONS="--import ./test-interceptor.js" pi -e . --temperature 0.5 -p 'hello world'
+```
+
+**Method 2: `NODE_OPTIONS` with `--require` (CJS fallback)**
+
+```bash
+NODE_OPTIONS="--require ./test-interceptor.js" pi -e . --temperature 0.5 -p 'hello world'
+```
+
+**Method 3: Temporary import in `index.ts` (development only)**
+
+Add at the top of `index.ts`:
+
+```typescript
+import './test-interceptor.js';
+```
+
+Then run normally:
+
+```bash
+pi -e . --temperature 0.5 -p 'hello world'
+```
+
+> ⚠️ Remove the import before committing. This method is only for local debugging.
+
+### Reading the output
+
+When a request is intercepted, you'll see output like:
+
+```
+=== OUTGOING LLM REQUEST ===
+Provider: google
+URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:streamGenerateContent
+PAYLOAD: {
+  "contents": [...],
+  "generationConfig": {
+    "temperature": 0.5,
+    "maxOutputTokens": 16384
+  }
+}
+
+>>> TEMPERATURE FOUND: 0.5 <<<
+```
+
+The `>>> TEMPERATURE FOUND: 0.5 <<<` line confirms the temperature was successfully injected. If you see `>>> NO TEMPERATURE IN PAYLOAD <<<`, the override is not reaching the HTTP request.
+
+### Testing scenarios
+
+```bash
+# Test Google Gemini with temperature 1.5
+NODE_OPTIONS="--import ./test-interceptor.js" \
+  pi -e . --provider google --model gemini-3-pro-preview --temperature 1.5 -p 'write a haiku'
+
+# Test Anthropic Claude with temperature 0.1
+NODE_OPTIONS="--import ./test-interceptor.js" \
+  pi -e . --provider anthropic --model claude-sonnet-4-6 --temperature 0.1 -p 'review this code'
+
+# Test OpenAI GPT with temperature 1.8
+NODE_OPTIONS="--import ./test-interceptor.js" \
+  pi -e . --provider openai --model gpt-5 --temperature 1.8 -p 'brainstorm ideas'
+
+# Test Mistral with temperature 0.7
+NODE_OPTIONS="--import ./test-interceptor.js" \
+  pi -e . --provider mistral --model mistral-large-latest --temperature 0.7 -p 'hello'
+
+# Test xAI Grok with temperature 0.3
+NODE_OPTIONS="--import ./test-interceptor.js" \
+  pi -e . --provider xai --model grok-4 --temperature 0.3 -p 'explain quantum computing'
+
+# Test that invalid temperature is rejected (should error, no network request)
+NODE_OPTIONS="--import ./test-interceptor.js" \
+  pi -e . --provider anthropic --model claude-sonnet-4-6 --temperature 1.5 -p 'hello'
+
+# Test /temperature command interactively
+NODE_OPTIONS="--import ./test-interceptor.js" pi -e .
+# Then in the session: /temperature 0.8
+# Then send a message and check the logged payload
+```
+
+### Verifying temperature absence (control test)
+
+Run without `--temperature` to confirm the default behavior sends no temperature:
+
+```bash
+NODE_OPTIONS="--import ./test-interceptor.js" pi -e . -p 'hello'
+# Should show: >>> NO TEMPERATURE IN PAYLOAD <<<
+```
+
+## Adding New Models
+
+To add models not yet in the allowed list, edit `models.json`:
+
+```json
+{
+  "allowedModels": [
+    ...existing entries...,
+    { "id": "my-new-model", "api": "openai-responses" }
+  ]
+}
+```
+
+If the model uses a new API type not yet listed in `apiTemperatureRanges`, add the range too:
+
+```json
+{
+  "apiTemperatureRanges": {
+    ...existing ranges...,
+    "my-custom-api": { "min": 0, "max": 2 }
+  }
+}
+```
+
+For a completely new API type, you'll also need to add a provider wrapper in `index.ts` — either as a load-time `pi.registerProvider()` call (if the `streamSimple` function is exported from `@mariozechner/pi-ai`) or as a late-binding capture in the `session_start` handler.
 
 ## Anthropic Vertex Support
 
@@ -163,3 +774,45 @@ Temperature state is persisted via `pi.appendEntry("temperature-state", ...)` on
 ## Example Skills
 
 See `examples/creative-writer/SKILL.md` (Gemini, temp=1.5) and `examples/precise-reviewer/SKILL.md` (Claude, temp=0.1).
+
+### Skill examples for new providers
+
+**OpenAI GPT-5 — brainstorming with high temperature:**
+
+```yaml
+---
+name: brainstormer
+description: Wild idea generator using GPT-5 at near-max temperature
+model: gpt-5(temperature=1.8)
+---
+```
+
+**Mistral — balanced creative writing:**
+
+```yaml
+---
+name: mistral-poet
+description: Poetry with Mistral at moderate temperature
+model: mistral-large-latest(temperature=1.0)
+---
+```
+
+**xAI Grok — deterministic analysis:**
+
+```yaml
+---
+name: grok-analyst
+description: Precise data analysis with Grok at low temperature
+model: grok-4(temperature=0.1)
+---
+```
+
+**Bedrock Claude — enterprise-grade review:**
+
+```yaml
+---
+name: bedrock-reviewer
+description: Code review via Bedrock Claude at low temperature
+model: anthropic.claude-sonnet-4-6(temperature=0.2)
+---
+```

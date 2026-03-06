@@ -4,9 +4,13 @@
  * Provides two mechanisms for controlling LLM temperature:
  *
  * 1. CLI flag: `pi --temperature 0.5` sets a global temperature override
- *    for the current session. Validated per-provider:
+ *    for the current session. Validated per-API:
  *    - Claude (anthropic-messages, anthropic-vertex): [0, 1]
- *    - Gemini (google-generative-ai, google-vertex): [0, 2]
+ *    - Gemini (google-generative-ai, google-vertex, google-gemini-cli): [0, 2]
+ *    - OpenAI (openai-responses, openai-completions, openai-codex-responses): [0, 2]
+ *    - Azure OpenAI (azure-openai-responses): [0, 2]
+ *    - Mistral (mistral-conversations): [0, 1.5]
+ *    - Bedrock (bedrock-converse-stream): [0, 1]
  *
  * 2. Skill frontmatter: Skills can specify a model with inline temperature
  *    using the syntax `model: gemini-3-pro-preview(temperature=0.1)`.
@@ -20,10 +24,11 @@
  * original pure stream functions from @mariozechner/pi-ai. These functions
  * make HTTP requests directly and are unaffected by jiti module isolation.
  *
- * For anthropic-vertex (external pi-anthropic-vertex extension), the stream
- * function is not available in @mariozechner/pi-ai. Instead, at session_start
- * the extension late-binds by capturing the already-registered stream function
- * from ctx.modelRegistry and re-registering a temperature-injecting wrapper.
+ * For providers whose stream functions are not exported from @mariozechner/pi-ai
+ * (bedrock-converse-stream, openai-codex-responses, anthropic-vertex), the
+ * extension late-binds at session_start by capturing the already-registered
+ * stream function from ctx.modelRegistry and re-registering a temperature-
+ * injecting wrapper.
  *
  * Allowed models for skill-based temperature override are defined in
  * models.json alongside per-API temperature ranges.
@@ -46,6 +51,11 @@ import {
 	streamSimpleAnthropic,
 	streamSimpleGoogle,
 	streamSimpleGoogleVertex,
+	streamSimpleGoogleGeminiCli,
+	streamSimpleOpenAIResponses,
+	streamSimpleOpenAICompletions,
+	streamSimpleAzureOpenAIResponses,
+	streamSimpleMistral,
 } from "@mariozechner/pi-ai";
 
 // ---------------------------------------------------------------------------
@@ -114,7 +124,7 @@ function validateTemperature(temperature: number, api: string): string | undefin
  *   "gemini-3-pro-preview"                  -> { modelId: "gemini-3-pro-preview", temperature: undefined }
  */
 function parseModelSpec(spec: string): { modelId: string; temperature: number | undefined } {
-	const match = spec.match(/^([a-zA-Z0-9._@-]+)\(temperature=([\d.]+)\)$/);
+	const match = spec.match(/^([a-zA-Z0-9._@/:-]+)\(temperature=([\d.]+)\)$/);
 	if (match) {
 		return { modelId: match[1], temperature: parseFloat(match[2]) };
 	}
@@ -187,7 +197,7 @@ export default function temperatureExtension(pi: ExtensionAPI) {
 	// -----------------------------------------------------------------------
 	pi.registerFlag("temperature", {
 		description:
-			"Set LLM temperature (Claude: 0-1, Gemini: 0-2). Overrides provider default.",
+			"Set LLM temperature (Anthropic: 0-1, Gemini: 0-2, OpenAI: 0-2, Mistral: 0-1.5, Bedrock: 0-1). Overrides provider default.",
 		type: "string",
 	});
 
@@ -204,7 +214,14 @@ export default function temperatureExtension(pi: ExtensionAPI) {
 	//
 	// Note: omitting `models` preserves the existing model list for each
 	// provider. Only the streamSimple implementation is replaced.
+	//
+	// Covers 8 of 11 API types at load time. The remaining 3
+	// (anthropic-vertex, bedrock-converse-stream, openai-codex-responses)
+	// are late-bound at session_start since their stream functions are not
+	// exported from @mariozechner/pi-ai.
 	// -----------------------------------------------------------------------
+
+	// --- Anthropic (direct API) ---
 	pi.registerProvider("anthropic", {
 		api: "anthropic-messages",
 		streamSimple: (model, context, options) => {
@@ -216,6 +233,7 @@ export default function temperatureExtension(pi: ExtensionAPI) {
 		},
 	});
 
+	// --- Google Generative AI ---
 	pi.registerProvider("google", {
 		api: "google-generative-ai",
 		streamSimple: (model, context, options) => {
@@ -227,6 +245,7 @@ export default function temperatureExtension(pi: ExtensionAPI) {
 		},
 	});
 
+	// --- Google Vertex AI ---
 	pi.registerProvider("google-vertex", {
 		api: "google-vertex",
 		streamSimple: (model, context, options) => {
@@ -235,6 +254,66 @@ export default function temperatureExtension(pi: ExtensionAPI) {
 					? { ...options, temperature: activeTemperature }
 					: options;
 			return streamSimpleGoogleVertex(model, context, finalOptions);
+		},
+	});
+
+	// --- Google Gemini CLI ---
+	pi.registerProvider("google-gemini-cli", {
+		api: "google-gemini-cli",
+		streamSimple: (model, context, options) => {
+			const finalOptions =
+				activeTemperature !== undefined
+					? { ...options, temperature: activeTemperature }
+					: options;
+			return streamSimpleGoogleGeminiCli(model, context, finalOptions);
+		},
+	});
+
+	// --- OpenAI (Responses API) ---
+	pi.registerProvider("openai", {
+		api: "openai-responses",
+		streamSimple: (model, context, options) => {
+			const finalOptions =
+				activeTemperature !== undefined
+					? { ...options, temperature: activeTemperature }
+					: options;
+			return streamSimpleOpenAIResponses(model, context, finalOptions);
+		},
+	});
+
+	// --- OpenAI Completions (used by xAI/Grok, Groq, Cerebras, HuggingFace, ZAI, OpenRouter) ---
+	pi.registerProvider("openai-completions", {
+		api: "openai-completions",
+		streamSimple: (model, context, options) => {
+			const finalOptions =
+				activeTemperature !== undefined
+					? { ...options, temperature: activeTemperature }
+					: options;
+			return streamSimpleOpenAICompletions(model, context, finalOptions);
+		},
+	});
+
+	// --- Azure OpenAI ---
+	pi.registerProvider("azure-openai-responses", {
+		api: "azure-openai-responses",
+		streamSimple: (model, context, options) => {
+			const finalOptions =
+				activeTemperature !== undefined
+					? { ...options, temperature: activeTemperature }
+					: options;
+			return streamSimpleAzureOpenAIResponses(model, context, finalOptions);
+		},
+	});
+
+	// --- Mistral ---
+	pi.registerProvider("mistral", {
+		api: "mistral-conversations",
+		streamSimple: (model, context, options) => {
+			const finalOptions =
+				activeTemperature !== undefined
+					? { ...options, temperature: activeTemperature }
+					: options;
+			return streamSimpleMistral(model, context, finalOptions);
 		},
 	});
 
@@ -394,20 +473,19 @@ export default function temperatureExtension(pi: ExtensionAPI) {
 	// -----------------------------------------------------------------------
 	pi.on("session_start", async (_event, ctx) => {
 		// ---------------------------------------------------------------
-		// 6a. Late-bind anthropic-vertex provider wrapper.
+		// 6a. Late-bind providers whose stream functions are not exported
+		//     from @mariozechner/pi-ai.
 		//
-		// The streamSimpleAnthropicVertex function is not exported by
-		// @mariozechner/pi-ai — it only exists in the external
-		// pi-anthropic-vertex extension. We cannot import it due to
-		// jiti module isolation. Instead, we capture the already-registered
-		// stream function from ctx.modelRegistry.registeredProviders
+		// These providers are registered by external extensions or via
+		// lazy-loading in register-builtins.js. We capture the already-
+		// registered stream function from ctx.modelRegistry.registeredProviders
 		// (TypeScript-private but runtime-accessible Map) and re-register
 		// a wrapper that injects temperature.
 		//
 		// This runs after pendingProviderRegistrations have been applied,
-		// so the anthropic-vertex provider (if loaded) is already in the
-		// registry. ctx.modelRegistry.registerProvider() is a direct call
-		// that writes to the main process's apiProviderRegistry.
+		// so the providers (if loaded) are already in the registry.
+		// ctx.modelRegistry.registerProvider() is a direct call that
+		// writes to the main process's apiProviderRegistry.
 		// ---------------------------------------------------------------
 		const registry = ctx.modelRegistry as Record<string, unknown>;
 		const registeredProviders = registry.registeredProviders as
@@ -415,24 +493,33 @@ export default function temperatureExtension(pi: ExtensionAPI) {
 			| undefined;
 
 		if (registeredProviders) {
-			const vertexConfig = registeredProviders.get("anthropic-vertex");
-			if (vertexConfig?.streamSimple) {
-				const originalStream = vertexConfig.streamSimple;
-				(ctx.modelRegistry as { registerProvider(name: string, config: Record<string, unknown>): void })
-					.registerProvider("anthropic-vertex", {
-						...vertexConfig,
-						streamSimple: (
-							model: Parameters<typeof streamSimpleAnthropic>[0],
-							context: Parameters<typeof streamSimpleAnthropic>[1],
-							options?: Parameters<typeof streamSimpleAnthropic>[2],
-						) => {
-							const finalOptions =
-								activeTemperature !== undefined
-									? { ...options, temperature: activeTemperature }
-									: options;
-							return originalStream(model, context, finalOptions);
-						},
-					});
+			// Late-bind APIs that aren't importable from @mariozechner/pi-ai
+			const lateBindApis = [
+				"anthropic-vertex",
+				"bedrock-converse-stream",
+				"openai-codex-responses",
+			];
+
+			for (const apiName of lateBindApis) {
+				const config = registeredProviders.get(apiName);
+				if (config?.streamSimple) {
+					const originalStream = config.streamSimple;
+					(ctx.modelRegistry as { registerProvider(name: string, config: Record<string, unknown>): void })
+						.registerProvider(apiName, {
+							...config,
+							streamSimple: (
+								model: Parameters<typeof streamSimpleAnthropic>[0],
+								context: Parameters<typeof streamSimpleAnthropic>[1],
+								options?: Parameters<typeof streamSimpleAnthropic>[2],
+							) => {
+								const finalOptions =
+									activeTemperature !== undefined
+										? { ...options, temperature: activeTemperature }
+										: options;
+								return originalStream(model, context, finalOptions);
+							},
+						});
+				}
 			}
 		}
 
